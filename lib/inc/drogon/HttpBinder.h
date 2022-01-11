@@ -22,6 +22,7 @@
 #include <drogon/DrObject.h>
 #include <drogon/utils/FunctionTraits.h>
 #include <drogon/utils/Utilities.h>
+#include <boost/type_index.hpp>
 #include <drogon/HttpRequest.h>
 #include <deque>
 #include <memory>
@@ -117,7 +118,7 @@ class HttpBinder : public HttpBinderBase
     {
         static_assert(traits::isHTTPFunction,
                       "Your API handler function interface is wrong!");
-        handlerName_ = DrClassMap::demangle(typeid(FUNCTION).name());
+        handlerName_ = DrClassMap::demangle(boost::typeindex::type_id_with_cvr<FUNCTION>().pretty_name());
     }
     void test()
     {

@@ -16,6 +16,7 @@
 
 #include <drogon/utils/any.h>
 #include <trantor/utils/Logger.h>
+#include <boost/type_index.hpp>
 #include <map>
 #include <memory>
 
@@ -43,7 +44,7 @@ class Attributes
         auto it = attributesMap_.find(key);
         if (it != attributesMap_.end())
         {
-            if (typeid(T) == it->second.type())
+            if (boost::typeindex::type_id_with_cvr<T>().pretty_name() == boost::typeindex::type_id_with_cvr<decltype(it->second)>().pretty_name())
             {
                 return *(any_cast<T>(&(it->second)));
             }

@@ -19,6 +19,7 @@
 #include <drogon/utils/any.h>
 #include <trantor/utils/Logger.h>
 #include <trantor/utils/MsgBuffer.h>
+#include <boost/type_index.hpp>
 #include <sstream>
 #include <string>
 #include <unordered_map>
@@ -41,7 +42,7 @@ class DROGON_EXPORT HttpViewData
         auto it = viewData_.find(key);
         if (it != viewData_.end())
         {
-            if (typeid(T) == it->second.type())
+            if (boost::typeindex::type_id_with_cvr<T>().pretty_name() == boost::typeindex::type_id_with_cvr<decltype(it->second)>().pretty_name())
             {
                 return *(any_cast<T>(&(it->second)));
             }

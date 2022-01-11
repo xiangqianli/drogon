@@ -16,7 +16,7 @@
 
 #include <drogon/exports.h>
 #include <drogon/DrClassMap.h>
-
+#include <boost/type_index.hpp>
 #include <string>
 #include <type_traits>
 
@@ -94,7 +94,7 @@ class DrObject : public virtual DrObjectBase
         const std::string &className() const
         {
             static std::string className =
-                DrClassMap::demangle(typeid(T).name());
+            DrClassMap::demangle(boost::typeindex::type_id_with_cvr<T>().pretty_name().c_str());
             return className;
         }
         template <typename D>

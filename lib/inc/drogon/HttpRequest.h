@@ -23,6 +23,7 @@
 #include <drogon/Session.h>
 #include <drogon/Attribute.h>
 #include <drogon/UploadFile.h>
+#include <boost/type_index.hpp>
 #include <json/json.h>
 #include <trantor/net/InetAddress.h>
 #include <trantor/utils/Date.h>
@@ -43,7 +44,7 @@ template <typename T>
 T fromRequest(const HttpRequest &)
 {
     LOG_ERROR << "You must specialize the fromRequest template for the type of "
-              << DrClassMap::demangle(typeid(T).name());
+              << DrClassMap::demangle(boost::typeindex::type_id_with_cvr<T>().pretty_name());
     exit(1);
 }
 
@@ -56,7 +57,7 @@ template <typename T>
 HttpRequestPtr toRequest(T &&)
 {
     LOG_ERROR << "You must specialize the toRequest template for the type of "
-              << DrClassMap::demangle(typeid(T).name());
+              << DrClassMap::demangle(boost::typeindex::type_id_with_cvr<T>().pretty_name());
     exit(1);
 }
 

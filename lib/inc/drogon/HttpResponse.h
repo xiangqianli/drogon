@@ -19,6 +19,7 @@
 #include <drogon/Cookie.h>
 #include <drogon/HttpTypes.h>
 #include <drogon/HttpViewData.h>
+#include <boost/type_index.hpp>
 #include <json/json.h>
 #include <memory>
 #include <string>
@@ -38,7 +39,7 @@ T fromResponse(const HttpResponse &resp)
 {
     LOG_ERROR
         << "You must specialize the fromResponse template for the type of "
-        << DrClassMap::demangle(typeid(T).name());
+        << DrClassMap::demangle(boost::typeindex::type_id_with_cvr<T>().pretty_name());
     exit(1);
 }
 
@@ -51,7 +52,7 @@ template <typename T>
 HttpResponsePtr toResponse(T &&)
 {
     LOG_ERROR << "You must specialize the toResponse template for the type of "
-              << DrClassMap::demangle(typeid(T).name());
+              << DrClassMap::demangle(boost::typeindex::type_id_with_cvr<T>().pretty_name());
     exit(1);
 }
 template <>
