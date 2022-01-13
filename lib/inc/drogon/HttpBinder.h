@@ -245,33 +245,33 @@ class HttpBinder : public HttpBinderBase
         {
             std::string v = std::move(pathArguments.front());
             pathArguments.pop_front();
-            try
+//            try
             {
                 if (v.empty() == false)
                     getHandlerArgumentValue(value, std::move(v));
             }
-            catch (const std::exception &e)
-            {
-                handleException(e, req, std::move(callback));
-                return;
-            }
+//            catch (const std::exception &e)
+//            {
+//                handleException(e, req, std::move(callback));
+//                return;
+//            }
         }
         else
         {
-            try
+//            try
             {
                 value = req->as<ValueType>();
             }
-            catch (const std::exception &e)
-            {
-                handleException(e, req, std::move(callback));
-                return;
-            }
-            catch (...)
-            {
-                LOG_ERROR << "Exception not derived from std::exception";
-                return;
-            }
+//            catch (const std::exception &e)
+//            {
+//                handleException(e, req, std::move(callback));
+//                return;
+//            }
+//            catch (...)
+//            {
+//                LOG_ERROR << "Exception not derived from std::exception";
+//                return;
+//            }
         }
 
         run(pathArguments,
@@ -290,21 +290,21 @@ class HttpBinder : public HttpBinderBase
         std::function<void(const HttpResponsePtr &)> &&callback,
         Values &&...values)
     {
-        try
+//        try
         {
             // Explcit copy because `callFunction` moves it
             auto cb = callback;
             callFunction(req, cb, std::move(values)...);
         }
-        catch (const std::exception &except)
-        {
-            handleException(except, req, std::move(callback));
-        }
-        catch (...)
-        {
-            LOG_ERROR << "Exception not derived from std::exception";
-            return;
-        }
+//        catch (const std::exception &except)
+//        {
+//            handleException(except, req, std::move(callback));
+//        }
+//        catch (...)
+//        {
+//            LOG_ERROR << "Exception not derived from std::exception";
+//            return;
+//        }
     }
 #ifdef __cpp_impl_coroutine
     template <typename... Values,

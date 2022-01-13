@@ -296,15 +296,15 @@ class DROGON_EXPORT HttpRequest
         auto it = params.find(key);
         if (it != params.end())
         {
-            try
+//            try
             {
                 return optional<T>(drogon::utils::fromString<T>(it->second));
             }
-            catch (const std::exception &e)
-            {
-                LOG_ERROR << e.what();
-                return optional<T>{};
-            }
+//            catch (const std::exception &e)
+//            {
+//                LOG_ERROR << e.what();
+//                return optional<T>{};
+//            }
         }
         else
         {
