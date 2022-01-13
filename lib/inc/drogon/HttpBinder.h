@@ -118,7 +118,7 @@ class HttpBinder : public HttpBinderBase
     {
         static_assert(traits::isHTTPFunction,
                       "Your API handler function interface is wrong!");
-        handlerName_ = DrClassMap::demangle(boost::typeindex::type_id_with_cvr<FUNCTION>().pretty_name());
+        handlerName_ = DrClassMap::demangle(boost::typeindex::type_id_with_cvr<FUNCTION>().pretty_name().c_str());
     }
     void test()
     {
