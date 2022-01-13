@@ -324,7 +324,7 @@ typename std::enable_if<!(internal::CanConvertFromStringStream<T>::value),
                         T>::type
 fromString(const std::string &) noexcept(false)
 {
-    throw std::runtime_error("Bad type conversion");
+//    throw std::runtime_error("Bad type conversion");
 }
 
 template <>
@@ -406,7 +406,8 @@ inline bool fromString<bool>(const std::string &p) noexcept(false)
     {
         return false;
     }
-    throw std::runtime_error("Can't convert from string '" + p + "' to bool");
+    return false;
+//    throw std::runtime_error("Can't convert from string '" + p + "' to bool");
 }
 }  // namespace utils
 }  // namespace drogon

@@ -93,15 +93,15 @@ class DROGON_EXPORT Field
         T value = T();
         if (data_)
         {
-            try
+//            try
             {
                 std::stringstream ss(data_);
                 ss >> value;
             }
-            catch (...)
-            {
-                LOG_DEBUG << "Type error";
-            }
+//            catch (...)
+//            {
+//                LOG_DEBUG << "Type error";
+//            }
         }
         return value;
     }
