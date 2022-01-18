@@ -13,7 +13,7 @@ else ()
 endif ()
 
 option(BUILD_CTL "Build drogon_ctl" ${BUILD_PROGRAMS})
-option(BUILD_EXAMPLES "Build examples" ${BUILD_PROGRAMS})
+option(BUILD_EXAMPLES "Build examples" OFF)
 option(BUILD_ORM "Build orm" ON)
 option(COZ_PROFILING "Use coz for profiling" OFF)
 option(BUILD_DROGON_SHARED "Build drogon as a shared lib" OFF)
@@ -460,7 +460,7 @@ else (DROGON_CXX_STANDARD EQUAL 20)
 endif (DROGON_CXX_STANDARD EQUAL 20)
 
 if (BUILD_EXAMPLES)
-    add_subdirectory(examples)
+#    add_subdirectory(examples)
 endif (BUILD_EXAMPLES)
 
 if (BUILD_CTL)
