@@ -12,20 +12,21 @@ else ()
     set(BUILD_PROGRAMS OFF)
 endif ()
 
-option(BUILD_CTL "Build drogon_ctl" ${BUILD_PROGRAMS})
+option(BUILD_CTL "Build drogon_ctl" OFF)
 option(BUILD_EXAMPLES "Build examples" OFF)
-option(BUILD_ORM "Build orm" ON)
+option(BUILD_ORM "Build orm" OFF)
 option(COZ_PROFILING "Use coz for profiling" OFF)
 option(BUILD_DROGON_SHARED "Build drogon as a shared lib" OFF)
 option(BUILD_DOC "Build Doxygen documentation" OFF)
 option(BUILD_BROTLI "Build Brotli" ON)
+set(USE_MYSQL OFF)
 
 include(CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION(BUILD_POSTGRESQL "Build with postgresql support" ON "BUILD_ORM" OFF)
-CMAKE_DEPENDENT_OPTION(LIBPQ_BATCH_MODE "Use batch mode for libpq" ON "BUILD_POSTGRESQL" OFF)
-CMAKE_DEPENDENT_OPTION(BUILD_MYSQL "Build with mysql support" ON "BUILD_ORM" OFF)
-CMAKE_DEPENDENT_OPTION(BUILD_SQLITE "Build with sqlite3 support" ON "BUILD_ORM" OFF)
-CMAKE_DEPENDENT_OPTION(BUILD_REDIS "Build with redis support" ON "BUILD_ORM" OFF)
+CMAKE_DEPENDENT_OPTION(BUILD_POSTGRESQL "Build with postgresql support" OFF "BUILD_ORM" OFF)
+CMAKE_DEPENDENT_OPTION(LIBPQ_BATCH_MODE "Use batch mode for libpq" OFF "BUILD_POSTGRESQL" OFF)
+CMAKE_DEPENDENT_OPTION(BUILD_MYSQL "Build with mysql support" OFF "BUILD_ORM" OFF)
+CMAKE_DEPENDENT_OPTION(BUILD_SQLITE "Build with sqlite3 support" OFF "BUILD_ORM" OFF)
+CMAKE_DEPENDENT_OPTION(BUILD_REDIS "Build with redis support" OFF "BUILD_ORM" OFF)
 
 set(DROGON_MAJOR_VERSION 1)
 set(DROGON_MINOR_VERSION 7)
@@ -321,110 +322,6 @@ else (NOT WIN32)
         third_party/mman-win32/mman.h)
 endif (NOT WIN32)
 
-if (BUILD_POSTGRESQL)
-    # find postgres
-    find_package(pg)
-    if (pg_FOUND)
-        message(STATUS "libpq inc path:" ${PG_INCLUDE_DIRS})
-        message(STATUS "libpq lib:" ${PG_LIBRARIES})
-        target_link_libraries(${PROJECT_NAME} PRIVATE pg_lib)
-        set(DROGON_SOURCES
-            ${DROGON_SOURCES}
-            orm_lib/src/postgresql_impl/PostgreSQLResultImpl.cc)
-        set(private_headers
-            ${private_headers}
-            orm_lib/src/postgresql_impl/PostgreSQLResultImpl.h)
-        if (LIBPQ_BATCH_MODE)
-            try_compile(libpq_supports_batch ${CMAKE_BINARY_DIR}/cmaketest
-                ${PROJECT_SOURCE_DIR}/cmake/tests/test_libpq_batch_mode.cc
-                LINK_LIBRARIES ${PostgreSQL_LIBRARIES}
-                CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${PostgreSQL_INCLUDE_DIR}")
-        endif (LIBPQ_BATCH_MODE)
-        if (libpq_supports_batch)
-            message(STATUS "The libpq supports batch mode")
-            option(LIBPQ_SUPPORTS_BATCH_MODE "libpq batch mode" ON)
-            set(DROGON_SOURCES
-                ${DROGON_SOURCES}
-                orm_lib/src/postgresql_impl/PgBatchConnection.cc)
-        else (libpq_supports_batch)
-            option(LIBPQ_SUPPORTS_BATCH_MODE "libpq batch mode" OFF)
-            set(DROGON_SOURCES
-                ${DROGON_SOURCES}
-                orm_lib/src/postgresql_impl/PgConnection.cc)
-            set(private_headers
-                ${private_headers}
-                orm_lib/src/postgresql_impl/PgConnection.h)
-        endif (libpq_supports_batch)
-    endif (pg_FOUND)
-endif (BUILD_POSTGRESQL)
-
-if (BUILD_MYSQL)
-    # Find mysql, only mariadb client liberary is supported
-    find_package(MySQL)
-    if (MySQL_FOUND)
-        message(STATUS "Ok! We find the mariadb!")
-        target_link_libraries(${PROJECT_NAME} PRIVATE MySQL_lib)
-        set(DROGON_SOURCES
-            ${DROGON_SOURCES}
-            orm_lib/src/mysql_impl/MysqlConnection.cc
-            orm_lib/src/mysql_impl/MysqlResultImpl.cc)
-        set(private_headers
-            ${private_headers}
-            orm_lib/src/mysql_impl/MysqlConnection.h
-            orm_lib/src/mysql_impl/MysqlResultImpl.h)
-    endif (MySQL_FOUND)
-endif (BUILD_MYSQL)
-
-if (BUILD_SQLITE)
-    # Find sqlite3.
-    find_package(SQLite3)
-    if (SQLite3_FOUND)
-        target_link_libraries(${PROJECT_NAME} PRIVATE SQLite3_lib)
-        set(DROGON_SOURCES
-            ${DROGON_SOURCES}
-            orm_lib/src/sqlite3_impl/Sqlite3Connection.cc
-            orm_lib/src/sqlite3_impl/Sqlite3ResultImpl.cc)
-        set(private_headers
-            ${private_headers}
-            orm_lib/src/sqlite3_impl/Sqlite3Connection.h
-            orm_lib/src/sqlite3_impl/Sqlite3ResultImpl.h)
-    endif (SQLite3_FOUND)
-endif (BUILD_SQLITE)
-
-if (BUILD_REDIS)
-    find_package(Hiredis)
-    if (Hiredis_FOUND)
-        add_definitions(-DUSE_REDIS)
-        target_link_libraries(${PROJECT_NAME} PRIVATE Hiredis_lib)
-        set(DROGON_SOURCES
-            ${DROGON_SOURCES}
-            nosql_lib/redis/src/RedisClientImpl.cc
-            nosql_lib/redis/src/RedisClientLockFree.cc
-            nosql_lib/redis/src/RedisClientManager.cc
-            nosql_lib/redis/src/RedisConnection.cc
-            nosql_lib/redis/src/RedisResult.cc
-            nosql_lib/redis/src/RedisTransactionImpl.cc)
-        set(private_headers
-            ${private_headers}
-            nosql_lib/redis/src/RedisClientImpl.h
-            nosql_lib/redis/src/RedisClientLockFree.h
-            nosql_lib/redis/src/RedisConnection.h
-            nosql_lib/redis/src/RedisTransactionImpl.h)
-
-    endif (Hiredis_FOUND)
-endif (BUILD_REDIS)
-
-if (NOT Hiredis_FOUND)
-    set(DROGON_SOURCES
-        ${DROGON_SOURCES}
-        lib/src/RedisClientSkipped.cc
-        lib/src/RedisResultSkipped.cc
-        lib/src/RedisClientManagerSkipped.cc)
-    set(private_headers
-        ${private_headers}
-        lib/src/RedisClientManager.h)
-endif (NOT Hiredis_FOUND)
-
 if (BUILD_TESTING)
     add_subdirectory(nosql_lib/redis/tests)
 endif (BUILD_TESTING)
@@ -432,19 +329,14 @@ endif (BUILD_TESTING)
 find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)
 
-find_package(OpenSSL)
-if (OpenSSL_FOUND)
-    target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL OpenSSL::Crypto)
-else (OpenSSL_FOUND)
-    set(DROGON_SOURCES
+set(DROGON_SOURCES
         ${DROGON_SOURCES}
         lib/src/ssl_funcs/Md5.cc
         lib/src/ssl_funcs/Sha1.cc)
-    set(private_headers
+set(private_headers
         ${private_headers}
         lib/src/ssl_funcs/Md5.h
         lib/src/ssl_funcs/Sha1.h)
-endif (OpenSSL_FOUND)
 
 execute_process(COMMAND "git" rev-parse HEAD
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
@@ -551,19 +443,19 @@ set_target_properties(${PROJECT_NAME} PROPERTIES EXPORT_NAME Drogon)
 
 if (pg_FOUND OR MySQL_FOUND OR SQLite3_FOUND)
     if (pg_FOUND)
-        option(USE_POSTGRESQL "Enable PostgreSQL" ON)
+        option(USE_POSTGRESQL "Enable PostgreSQL" OFF)
     else (pg_FOUND)
         option(USE_POSTGRESQL "Disable PostgreSQL" OFF)
     endif (pg_FOUND)
 
     if (MySQL_FOUND)
-        option(USE_MYSQL "Enable Mysql" ON)
+        option(USE_MYSQL "Enable Mysql" OFF)
     else (MySQL_FOUND)
         option(USE_MYSQL "Disable Mysql" OFF)
     endif (MySQL_FOUND)
 
     if (SQLite3_FOUND)
-        option(USE_SQLITE3 "Enable Sqlite3" ON)
+        option(USE_SQLITE3 "Enable Sqlite3" OFF)
     else (SQLite3_FOUND)
         option(USE_SQLITE3 "Disable Sqlite3" OFF)
     endif (SQLite3_FOUND)
